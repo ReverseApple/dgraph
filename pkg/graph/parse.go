@@ -18,10 +18,7 @@ func systemBinaryResidesInDyldCache(path string) bool {
 		_, file := filepath.Split(path)
 
 		switch file {
-		case "CoreFP":
-		case "CoreKE":
-		case "CoreLSKD":
-		case "CoreADI":
+		case "CoreFP", "CoreKE", "CoreLSKD", "CoreADI":
 			return false
 		default:
 			return true
