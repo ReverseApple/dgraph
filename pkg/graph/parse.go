@@ -31,11 +31,24 @@ func systemBinaryResidesInDyldCache(path string) bool {
 	return false
 }
 
+func isPathLoadEntry(load macho.Load) bool {
+	loadParts := strings.Split(load.String(), "/")
+
+	switch strings.TrimSpace(loadParts[0]) {
+	case "@rpath", "@loader_path", "@executable_path":
+		return true
+	default:
+		return strings.HasPrefix(load.String(), "/")
+	}
+}
+
 func getDependencies(file *macho.File) []string {
 	var result []string
 
 	for _, load := range file.Loads {
-		result = append(result, load.String())
+		if isPathLoadEntry(load) {
+			result = append(result, load.String())
+		}
 	}
 
 	return result
