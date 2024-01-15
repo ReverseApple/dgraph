@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"github.com/blacktop/go-macho/types"
 	"github.com/goccy/go-graphviz"
-	"log"
+	"io"
 	"strings"
 )
 
@@ -24,10 +24,10 @@ func NewImportGraphGenerator(maxDepth uint) *DependencyGraphGenerator {
 	}
 }
 
-func (g *DependencyGraphGenerator) GenerateGraph(rootNode string, cpu types.CPU) string {
+func (g *DependencyGraphGenerator) GenerateGraph(rootNode string, cpu types.CPU) (io.Reader, error) {
 	graph, err := g.gv.Graph()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	graph.CreateNode(rootNode)
@@ -88,10 +88,10 @@ func (g *DependencyGraphGenerator) GenerateGraph(rootNode string, cpu types.CPU)
 		visited[current] = true
 	}
 
-	var buf bytes.Buffer
-	if err := g.gv.Render(graph, "dot", &buf); err != nil {
-		log.Fatal(err)
+	buf := new(bytes.Buffer)
+	if err := g.gv.Render(graph, "dot", buf); err != nil {
+		return nil, err
 	}
 
-	return buf.String()
+	return buf, nil
 }
